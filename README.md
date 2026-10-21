@@ -48,8 +48,9 @@ git add mailings/<cliente>/<evento>/<envio>/
 node scripts/validar.mjs --staged
 git commit -m "mailings(<cliente>): <evento> / <envio>"
 git push origin main
-# Vercel publica en ~30–60 s. Verificar:
-curl -sI https://assets.studionomade.cl/mailings/<ruta>/<archivo> | head -1   # HTTP/2 200
+# Vercel publica en ~30–90 s. Verificar el estado del deploy en el commit:
+gh api repos/Studio-Nomade/mailings-assets/commits/$(git rev-parse HEAD)/status --jq .state   # success
+curl -sI https://assets.studionomade.cl/mailings/<ruta>/<archivo> | head -1                   # HTTP/2 200
 ```
 
 ## Futuro (Noma)
