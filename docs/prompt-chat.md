@@ -12,7 +12,7 @@ Vamos a desarrollar un correo HTML de Studio Nomade y a publicar sus assets en
 - Cliente: [ej. Capital Ya]
 - Evento / campaña: [ej. Desayuno Expo Real Estate] — fecha del evento: [AAAAMMDD]
 - Envío: [ej. Invitación] — fecha de envío: [AAAAMMDD]
-- Carpeta local: `20260216_MAILINGS 2026/[AAAAMMDD_Nombre del evento]` (o adjunto los archivos)
+- Carpeta local: `20260216_MAILINGS 2026/[AAAAMMDD_Nombre del evento]/[NN_AAAAMMDD_Nombre del envío]` (o adjunto los archivos)
 - Plataforma de envío: [Mailchimp / Brevo / Gmail / otra]
 
 **Qué hacer con los assets (sin pedirme autorización en cada paso)**
@@ -38,9 +38,12 @@ Vamos a desarrollar un correo HTML de Studio Nomade y a publicar sus assets en
    `success` (ver sección de verificación del `CLAUDE.md`).
 7. Reemplaza en el HTML todos los `src` y `background` por las URLs absolutas
    `https://assets.studionomade.cl/mailings/...`, con `alt`, `width` y `height`.
-8. Entrégame: el HTML final como archivo, la tabla de URLs publicadas y, si el chat
-   está conectado a mi computador, guarda el HTML final en la carpeta local del envío
-   como `AAAAMMDD_<evento>_<envio>.html`.
+8. Entrégame: el HTML final como archivo, la tabla de URLs publicadas, el **asunto** y la
+   **primera línea** (preheader < 100 caracteres, igual al oculto en el HTML). Si el chat
+   está conectado a mi computador, guarda el envío en la carpeta local con esta
+   estructura (ver "Carpeta local" en el `README.md`):
+   `20260216_MAILINGS 2026/AAAAMMDD_Evento/NN_AAAAMMDD_Envío/Correo_<Evento>_<Envío>.html`
+   + `assets/` con copia de las imágenes publicadas.
 
 **Reglas del HTML**: tablas y estilos inline, ancho 600 px, compatible con Outlook y
 Gmail (sin SVG, sin WebP, sin JS), texto real y no imágenes para el contenido clave,

@@ -28,6 +28,20 @@ evento `20260720_reconexion-de-cuenta`. El cliente sale del nombre o de la carpe
 cliente; si no es evidente, se confirma antes de publicar. Las fechas se mantienen; el nombre se
 convierte a slug (minúsculas, sin tildes ni ñ, espacios y símbolos → `-`).
 
+Estructura local de cada envío (la que usan los chats al guardar):
+
+```
+20260216_MAILINGS 2026/
+└── 20261013_Decision Summit Viña/              ← evento: AAAAMMDD_Nombre (con tildes y espacios)
+    └── 03_20261021_Es Mañana/                  ← envío: NN_AAAAMMDD_Nombre
+        ├── Correo_Decision_Summit_Es_Manana.html   ← Correo_<Evento>_<Envío>.html (sin tildes ni ñ, guion bajo)
+        └── assets/                             ← copia de las imágenes publicadas, mismos nombres que en el repo
+```
+
+En el repo, el mismo envío queda en
+`mailings/equifax/20261013_decision-summit-vina/03_20261021_es-manana/`: el `NN` y las
+fechas son los mismos que en local; solo el nombre pasa a slug.
+
 ## Reglas
 
 1. **Nunca sobrescribir, renombrar ni borrar** un archivo publicado: hay correos
