@@ -1,0 +1,67 @@
+name: Publicar assets
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Rango del push
+        id: rango
+        run: |
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BEFORE="$(git hash-object -t tree /dev/null)"
+          fi
+          echo "base=$BEFORE" >> "$GITHUB_OUTPUT"
+
+      - name: Validar nomenclatura
+        run: node scripts/validar.mjs --range "${{ steps.rango.outputs.base }}..${{ github.sha }}"
+
+      - name: Publicar en Vercel (deploy hook)
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "::error::Falta el secreto VERCEL_DEPLOY_HOOK"; exit 1; fi
+          curl -fsS -X POST "$HOOK" > /dev/null
+
+      - name: Esperar a que las URLs nuevas respondan 200
+        run: |
+          set -e
+          FILES=$(git diff --name-only --diff-filter=A "${{ steps.rango.outputs.base }}..${{ github.sha }}" -- mailings/ | grep -v -e '/\.gitkeep$' -e '_healthcheck.txt$' || true)
+          [ -z "$FILES" ] && FILES="mailings/_healthcheck.txt"
+          EXPECT="$(cat mailings/_healthcheck.txt)"
+          for i in $(seq 1 30); do
+            PEND=""
+            for f in $FILES; do
+              URL="https://assets.studionomade.cl/$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$f")"
+              CODE=$(curl -s -o /dev/null -w '%{http_code}' -H 'Cache-Control: no-cache' "$URL?v=${{ github.sha }}")
+              [ "$CODE" = "200" ] || PEND="$PEND $f"
+            done
+            if [ "$FILES" = "mailings/_healthcheck.txt" ] && [ -z "$PEND" ]; then
+              [ "$(curl -s "https://assets.studionomade.cl/mailings/_healthcheck.txt?v=${{ github.sha }}")" = "$EXPECT" ] || PEND="healthcheck"
+            fi
+            if [ -z "$PEND" ]; then
+              echo "## Publicado" >> "$GITHUB_STEP_SUMMARY"
+              for f in $FILES; do echo "- https://assets.studionomade.cl/$f" | tee -a "$GITHUB_STEP_SUMMARY"; done
+              exit 0
+            fi
+            echo "Esperando deploy ($i/30):$PEND"; sleep 10
+          done
+          echo "::error::Las URLs no respondieron 200 tras 5 min:$PEND"; exit 1

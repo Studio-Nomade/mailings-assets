@@ -2,7 +2,8 @@
 
 Assets públicos (imágenes, PDF, .ics) de los mailings HTML de Studio Nomade,
 servidos en **https://assets.studionomade.cl** (proyecto Vercel `mailings-assets`,
-team `studio-nomade`, deploy automático desde `main`).
+team `studio-nomade`). Cada push a `main` publica vía el GitHub Action
+`Publicar assets`, que usa el secreto `VERCEL_DEPLOY_HOOK`.
 
 ## URL y estructura
 
@@ -48,9 +49,10 @@ git add mailings/<cliente>/<evento>/<envio>/
 node scripts/validar.mjs --staged
 git commit -m "mailings(<cliente>): <evento> / <envio>"
 git push origin main
-# Vercel publica en ~30–90 s. Verificar el estado del deploy en el commit:
-gh api repos/Studio-Nomade/mailings-assets/commits/$(git rev-parse HEAD)/status --jq .state   # success
-curl -sI https://assets.studionomade.cl/mailings/<ruta>/<archivo> | head -1                   # HTTP/2 200
+# El Action "Publicar assets" valida, publica en Vercel (deploy hook) y espera a que
+# cada URL nueva responda 200. Verificar que terminó en success:
+gh api "repos/Studio-Nomade/mailings-assets/actions/runs?head_sha=$(git rev-parse HEAD)" \
+  --jq '.workflow_runs[0] | .status + " " + (.conclusion // "")'   # completed success
 ```
 
 ## Futuro (Noma)

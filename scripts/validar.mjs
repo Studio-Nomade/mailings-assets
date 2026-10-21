@@ -2,6 +2,7 @@
 // Valida la nomenclatura de mailings/ y que no se sobrescriban ni borren assets ya publicados.
 // Uso: node scripts/validar.mjs            (revisa todo mailings/ + cambios en stage)
 //      node scripts/validar.mjs --staged   (revisa solo lo que está en stage)
+//      node scripts/validar.mjs --range <base>..<head>  (CI: revisa los commits del push)
 import { execSync } from "node:child_process";
 import { readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -50,16 +51,26 @@ function recorrer(dir) {
 }
 
 const soloStaged = process.argv.includes("--staged");
+const iRange = process.argv.indexOf("--range");
+const rango = iRange > -1 ? process.argv[iRange + 1] : null;
 const hayHead = (() => { try { git("rev-parse --verify HEAD"); return true; } catch { return false; } })();
 
-if (hayHead) {
+if (rango) {
+  const lista = (filtro) =>
+    git(`diff --name-only --diff-filter=${filtro} ${rango} -- mailings/`).split("\n").filter(Boolean);
+  for (const r of lista("MDR").filter((r) => !IGNORADOS.has(r)))
+    errores.push(`Prohibido modificar/borrar/renombrar un asset publicado: ${r} (sube una versión nueva -v2)`);
+  for (const r of lista("A")) validarRuta(r, statSync(join(ROOT, r)).size);
+} else if (hayHead) {
   // Nunca modificar ni borrar un asset publicado: los correos enviados apuntan a esas URLs.
   const cambiados = git("diff --cached --name-only --diff-filter=MDR -- mailings/")
     .split("\n").filter(Boolean).filter((r) => !IGNORADOS.has(r));
   for (const r of cambiados) errores.push(`Prohibido modificar/borrar/renombrar un asset publicado: ${r} (sube una versión nueva -v2)`);
 }
 
-if (soloStaged) {
+if (rango) {
+  // ya revisado arriba
+} else if (soloStaged) {
   const nuevos = git("diff --cached --name-only --diff-filter=A -- mailings/").split("\n").filter(Boolean);
   for (const r of nuevos) validarRuta(r, statSync(join(ROOT, r)).size);
 } else {

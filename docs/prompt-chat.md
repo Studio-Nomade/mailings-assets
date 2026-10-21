@@ -30,8 +30,8 @@ Vamos a desarrollar un correo HTML de Studio Nomade y a publicar sus assets en
 4. Nunca sobrescribas un archivo ya publicado: si cambia, súbelo como `-v2`.
 5. Valida (`node scripts/validar.mjs --staged`), haz commit a `main`
    (`mailings(<cliente>): <evento> / <envio>`) y push.
-6. Espera a que el deploy quede en `success` (estado del commit en GitHub; si `gh`
-   falla por token, usa `env -u GH_TOKEN gh api ...`).
+6. Confirma que quedó publicado: el Action "Publicar assets" del commit debe terminar en
+   `success` (ver sección de verificación del `CLAUDE.md`).
 7. Reemplaza en el HTML todos los `src` y `background` por las URLs absolutas
    `https://assets.studionomade.cl/mailings/...`, con `alt`, `width` y `height`.
 8. Entrégame: el HTML final como archivo, la tabla de URLs publicadas y, si el chat

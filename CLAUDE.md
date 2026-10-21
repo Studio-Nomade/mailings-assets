@@ -12,8 +12,11 @@ Lee `README.md`: define la URL pública, la nomenclatura y las reglas. Resumen:
 - Nada de datos personales, BBDD ni HTML fuente en este repo.
 - Commit directo a `main` con mensaje `mailings(<cliente>): <evento> / <envio>`, luego
   `git push origin main`.
-- Verificar el deploy por GitHub (el entorno de Claude no alcanza el dominio):
-  `gh api repos/Studio-Nomade/mailings-assets/commits/$(git rev-parse HEAD)/status --jq .state`
-  hasta que diga `success` (~30–90 s; reintentar cada 20 s, máx. 5 min). Si hay
-  navegador o WebFetch disponible, abrir además una de las URLs.
+- Cada push a `main` dispara el Action **Publicar assets** (`.github/workflows/publicar.yml`):
+  valida, publica en Vercel y espera a que cada URL nueva responda `200`. Verifica que
+  terminó en `success` (el entorno de Claude no alcanza el dominio, GitHub sí):
+  `gh api "repos/Studio-Nomade/mailings-assets/actions/runs?head_sha=$(git rev-parse HEAD)" --jq '.workflow_runs[0] | .status + " " + (.conclusion // "")'`
+  hasta `completed success` (~1–2 min; reintentar cada 20 s, máx. 6 min; si `gh` falla
+  por token, usa `env -u GH_TOKEN gh api ...`). Si termina en `failure`, revisa el log
+  (`gh run view --log-failed`) y avisa.
 - Correr `node scripts/validar.mjs --staged` antes de cada commit.
