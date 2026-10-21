@@ -16,7 +16,7 @@ Lee `README.md`: define la URL pública, la nomenclatura y las reglas. Resumen:
   valida, publica en Vercel y espera a que cada URL nueva responda `200`. Verifica que
   terminó en `success` (el entorno de Claude no alcanza el dominio, GitHub sí):
   `gh api "repos/Studio-Nomade/mailings-assets/actions/runs?head_sha=$(git rev-parse HEAD)" --jq '.workflow_runs[0] | .status + " " + (.conclusion // "")'`
-  hasta `completed success` (~1–2 min; reintentar cada 20 s, máx. 6 min; si `gh` falla
+  hasta `completed success` (normalmente 1–3 min, a veces hasta ~8 min porque GitHub demora en encolar el run; reintentar cada 20 s, máx. 12 min; si `gh` falla
   por token, usa `env -u GH_TOKEN gh api ...`). Si termina en `failure`, revisa el log
   (`gh run view --log-failed`) y avisa.
 - Correr `node scripts/validar.mjs --staged` antes de cada commit.
