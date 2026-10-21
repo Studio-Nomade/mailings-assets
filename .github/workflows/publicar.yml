@@ -55,7 +55,9 @@ jobs:
               [ "$CODE" = "200" ] || PEND="$PEND $f"
             done
             if [ "$FILES" = "mailings/_healthcheck.txt" ] && [ -z "$PEND" ]; then
-              [ "$(curl -s "https://assets.studionomade.cl/mailings/_healthcheck.txt?v=${{ github.sha }}")" = "$EXPECT" ] || PEND="healthcheck"
+              # Acepta este deploy o uno posterior (pushes seguidos): los timestamps ISO se comparan como texto.
+              SERVED="$(curl -s "https://assets.studionomade.cl/mailings/_healthcheck.txt?v=${{ github.sha }}")"
+              [ "$SERVED" = "$EXPECT" ] || [[ "$SERVED" > "$EXPECT" ]] || PEND="healthcheck"
             fi
             if [ -z "$PEND" ]; then
               echo "## Publicado" >> "$GITHUB_STEP_SUMMARY"
