@@ -16,8 +16,12 @@ Vamos a desarrollar un correo HTML de Studio Nomade y a publicar sus assets en
 - Plataforma de envío: [Mailchimp / Brevo / Gmail / otra]
 
 **Qué hacer con los assets (sin pedirme autorización en cada paso)**
-1. Conecta el repo `Studio-Nomade/mailings-assets` con acceso de escritura, clónalo y
-   sigue su `CLAUDE.md` y `README.md`.
+1. Conecta el repo `Studio-Nomade/mailings-assets` con acceso de escritura (herramienta
+   `add_repo`, owner `Studio-Nomade`, repo `mailings-assets`, access `push`; yo apruebo la
+   tarjeta), clónalo y sigue su `CLAUDE.md` y `README.md`. Si esta conversación no tiene
+   herramientas de GitHub, deja los assets en `assets/` dentro de la carpeta local del
+   envío, con el HTML ya apuntando a las URLs finales, y avísame para publicarlos desde
+   una sesión con acceso.
 2. Arma la ruta `mailings/<cliente>/<AAAAMMDD_evento>/<NN_AAAAMMDD_envio>/`:
    slugs en minúsculas, sin tildes ni ñ, con guiones. Si el cliente o el evento ya
    existen en el repo, reutiliza esas carpetas y usa el siguiente `NN` para el envío.
